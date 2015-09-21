@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"stored/config"
+	"spool-mock/config"
 	"net"
-	"stored/client"
+	"spool-mock/client"
 	"strings"
-	"stored/db"
+	"spool-mock/db"
 	"io"
 )
 

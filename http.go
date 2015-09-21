@@ -1,7 +1,7 @@
 package main
 
 import (
-	"stored/config"
+	"spool-mock/config"
 	"fmt"
 	"net/http"
 	"github.com/xsnews/webutils/middleware"
@@ -9,7 +9,7 @@ import (
 	"github.com/xsnews/webutils/httpd"
 
 	"encoding/json"
-	"stored/db"
+	"spool-mock/db"
 	"io"
 )
 
@@ -81,7 +81,7 @@ func Msgid(w http.ResponseWriter, r *http.Request) {
 }
 
 func httpListen(listen string) error {
-	mux.Title = "StoreD API"
+	mux.Title = "spool-mock API"
 	mux.Desc = "Simple datastore for NNTP Articles."
 	mux.Add("/", doc, "This documentation")
 	//mux.Add("/meta", article, "PUT Meta set key=?,value=? WHERE msgid=?")
@@ -91,7 +91,7 @@ func httpListen(listen string) error {
 	// TODO: Catch CTRL+C
 
 	if config.Verbose {
-		fmt.Println("stored listening on " + listen)
+		fmt.Println("spool-mock listening on " + listen)
 	}
 	return http.ListenAndServe(listen, nil)
 }

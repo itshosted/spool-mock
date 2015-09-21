@@ -1,3 +1,4 @@
-StoreD
+spool-mock
 =============
-Store daemon. Simple datastore for saving/loading data.
+Fake a storage machine on NNTP for testing purposes.
+"Clone" of stored.

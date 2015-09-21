@@ -3,14 +3,14 @@ package db
 import (
 	"fmt"
 	"time"
-	"stored/config"
+	"spool-mock/config"
 	"os"
 	"bufio"
 	"io"
 	"bytes"
 
-	"stored/headreader"
-	"stored/bodyreader"
+	"spool-mock/headreader"
+	"spool-mock/bodyreader"
 )
 
 type SaveInput struct {

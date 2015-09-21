@@ -1,7 +1,7 @@
 package main
 
 import (
-	"stored/config"
+	"spool-mock/config"
 	"flag"
 )
 
