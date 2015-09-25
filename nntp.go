@@ -6,7 +6,7 @@ import (
 	"net"
 	"spool-mock/client"
 	"strings"
-	"spool-mock/db"
+	//"spool-mock/db"
 	"io"
 	"net/textproto"
 	"bufio"
@@ -26,20 +26,6 @@ func Unsupported(conn *client.Conn, tok []string) {
 }
 
 func read(conn *client.Conn, msgid string, msgtype string) {
-	read, usrErr, sysErr := db.Read(
-		db.ReadInput{Msgid: msgid[1:len(msgid)-1], Type: msgtype},
-	)
-	if sysErr != nil {
-		fmt.Println("WARN: " + sysErr.Error())
-		conn.Send("500 Failed processing")
-		return
-	}
-	if usrErr != nil {
-		conn.Send("400 " + usrErr.Error())
-		return
-	}
-	defer read.Close()
-
 	var code string
 	if msgtype == "ARTICLE" {
 		code = "220"
@@ -51,13 +37,49 @@ func read(conn *client.Conn, msgid string, msgtype string) {
 		panic("Should not get here")
 	}
 
-	conn.Send(code + " " + msgid)
-	if _, e := io.Copy(conn.GetWriter(), read); e != nil {
-		fmt.Println("WARN: " + e.Error())
-		conn.Send("500 Failed forwarding")
+	if msgid == "<aaa@bb.cc>" {
+		conn.Send("500 msgid means fivehundred err")
 		return
 	}
+
+	raw := `Path: asg009!abp002.ams.xsnews.nl!abuse.newsxs.nl!not-for-mail
+From: Zinitzio <x8F4zpNLByt8Vhh1hyFBTcarWqKeqTszySrxYJUNrGyj64VA761YahKczcyROsOv.N5UyksLragucHTY7hXbIf3OraQSwtjjJX6PcYubvlsh6oPDUGuY1j0b4Z7i6xnio@47a00b01.16110764.10.1443172883.1.NL.v8r0DMvyrMxvrV9wjB9RklWe-p-p1ZChfS4lxGsMNtRWMbyLXZonEJ6Lp3usHDsLnG>
+Subject: Mkv Tool Nix 8.4.0 NL | Zgp
+Newsgroups: free.pt
+Message-ID: <pTgQyybcKwYEhIFVg2wH7@spot.net>
+X-Newsreader: Spotnet 2.0.0.114
+X-XML: <Spotnet><Posting><Key>7</Key><Created>1443172883</Created><Poster>Zinitzio</Poster><Tag>Zgp</Tag><Title>Mkv Tool Nix 8.4.0 NL</Title><Description>Iedere Mkv (x264) film heeft meerdere sporen. Met dit programma kun je sporen verwijderen of toevoegen. Heb je een film zonder ondertitel dan kun je die makkelijk toevoegen.[br][br]In deze spot zitten de volgende onderdelen:[br][br]Mkv Tool Nix 8.4.0</Description><Image Width='350' Height='350'><Segment>Ldqj0ABsZDMEhIFVgyrLc@spot.net</Segment></Image><Size>16110764</Size><Category>04<Sub>04a00</Sub><Sub>04b01</Sub></Category><NZB><Segment>sm0Ls136Ir4EhIFVgj4Dg@spot.net</Segment></NZB></Posting></Spotnet>
+X-XML-Signature: mMXtDVvEzuAz5soJzKcpsd042VQY2M306o418-pOYtLIxv7DN5lDzAO3rB3EakfZT
+X-User-Key: <RSAKeyValue><Modulus>x8F4zpNLByt8Vhh1hyFBTcarWqKeqTszySrxYJUNrGyj64VA761YahKczcyROsOv</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>
+X-User-Signature: N5UyksLragucHTY7hXbIf3OraQSwtjjJX6PcYubvlsh6oPDUGuY1j0b4Z7i6xnio
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: abuse@newsxs.nl
+Organization: Newsxs
+Date: Fri, 25 Sep 2015 11:21:23 +0200
+Lines: 5
+NNTP-Posting-Date: Fri, 25 Sep 2015 11:21:23 +0200
+
+Iedere Mkv (x264) film heeft meerdere sporen. Met dit programma kun je sporen verwijderen of toevoegen. Heb je een film zonder ondertitel dan kun je die makkelijk toevoegen.
+
+In deze spot zitten de volgende onderdelen:
+
+Mkv Tool Nix 8.4.0`
+	raw = strings.Replace(raw, "\n", "\r\n", -1)
+
+	conn.Send(code + " " + msgid)
+
+	if msgid == "<aab@bb.cc>" {
+		// fake a broken
+		conn.Send(raw[0:50])
+		conn.Close()
+	} else {
+		conn.Send(raw)
+	}
 	conn.Send("\r\n.") // additional \r\n auto-added
+	if msgid == "<close@bb.cc>" {
+		conn.Close()
+	}
 }
 
 func PostArticle(conn *client.Conn) {
@@ -85,43 +107,11 @@ func PostArticle(conn *client.Conn) {
 		return
 	}
 
-	// 	b.String()
-	if b.String() != "Body.\r\nBody1\r\nBody2 ohyeay?\r\n" {
-		conn.Send("500 Body broken?")
+	if b.String() != "\r\nBody.\r\nBody1\r\nBody2 ohyeay?\r\n.\r\n" {
+		conn.Send("500 Body does not match hardcoded compare value.")
 		return
 	}
-	conn.Send("240 Posted " + m.Get("X-MsgId"))
-
-	/*buf := new(bytes.Buffer)
-	br := dotreader.New(conn.GetReader())
-
-	// TODO: Unsafe copy ALL
-	fmt.Println("PostArticle read.")
-	if _, e := io.Copy(buf, br); e != nil {
-		conn.Send("500 Copy error.")
-		return
-	}
-	fmt.Println("PostArticle parse.")
-	headBody := strings.SplitN(buf.String(), "\r\n\r\n", 2)
-
-	r := textproto.NewReader(bufio.NewReader(strings.NewReader(headBody[0])))
-	m, e := r.ReadMIMEHeader()
-	if e != nil {
-		conn.Send("441 Failed reading header")
-		return
-	}
-	if val := m.Get("X-Accept"); val == "DENY" {
-		conn.Send("441 Deny test.")
-		return
-	}
-	fmt.Println("PostArticle body.")
-
-	if headBody[1] != "Body.\r\nBody1\r\nBody2 ohyeay?\r\n" {
-		conn.Send("500 Body broken?")
-		return
-	}
-
-	conn.Send("240 Posted " + m.Get("X-MsgId"))*/
+	conn.Send("240 Posted.")
 }
 
 func Article(conn *client.Conn, tok []string) {
