@@ -6,14 +6,11 @@ import (
 	"net"
 	"spool-mock/client"
 	"strings"
-	//"spool-mock/db"
 	"io"
 	"net/textproto"
 	"bufio"
 	"bytes"
 	"spool-mock/dotreader"
-	//"spool-mock/headreader"
-	//"spool-mock/bodyreader"
 )
 
 func Quit(conn *client.Conn, tok []string) {
