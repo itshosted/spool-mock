@@ -24,12 +24,17 @@ func Unsupported(conn *client.Conn, tok []string) {
 
 func read(conn *client.Conn, msgid string, msgtype string) {
 	var code string
+	head := true
+	body := true
+
 	if msgtype == "ARTICLE" {
 		code = "220"
 	} else if msgtype == "HEAD" {
 		code = "221"
+		body = false
 	} else if msgtype == "BODY" {
 		code = "222"
+		head = false
 	} else {
 		panic("Should not get here")
 	}
@@ -39,7 +44,9 @@ func read(conn *client.Conn, msgid string, msgtype string) {
 		return
 	}
 
-	raw := `Path: asg009!abp002.ams.xsnews.nl!abuse.newsxs.nl!not-for-mail
+	var raw string
+	if head {
+	raw += `Path: asg009!abp002.ams.xsnews.nl!abuse.newsxs.nl!not-for-mail
 From: Zinitzio <x8F4zpNLByt8Vhh1hyFBTcarWqKeqTszySrxYJUNrGyj64VA761YahKczcyROsOv.N5UyksLragucHTY7hXbIf3OraQSwtjjJX6PcYubvlsh6oPDUGuY1j0b4Z7i6xnio@47a00b01.16110764.10.1443172883.1.NL.v8r0DMvyrMxvrV9wjB9RklWe-p-p1ZChfS4lxGsMNtRWMbyLXZonEJ6Lp3usHDsLnG>
 Subject: Mkv Tool Nix 8.4.0 NL | Zgp
 Newsgroups: free.pt
@@ -55,13 +62,19 @@ X-Complaints-To: abuse@newsxs.nl
 Organization: Newsxs
 Date: Fri, 25 Sep 2015 11:21:23 +0200
 Lines: 5
-NNTP-Posting-Date: Fri, 25 Sep 2015 11:21:23 +0200
-
-Iedere Mkv (x264) film heeft meerdere sporen. Met dit programma kun je sporen verwijderen of toevoegen. Heb je een film zonder ondertitel dan kun je die makkelijk toevoegen.
+NNTP-Posting-Date: Fri, 25 Sep 2015 11:21:23 +0200`
+}
+if head && body {
+	raw += "\n\n"
+}
+if body {
+raw += `Iedere Mkv (x264) film heeft meerdere sporen. Met dit programma kun je sporen verwijderen of toevoegen. Heb je een film zonder ondertitel dan kun je die makkelijk toevoegen.
 
 In deze spot zitten de volgende onderdelen:
 
 Mkv Tool Nix 8.4.0`
+}
+
 	raw = strings.Replace(raw, "\n", "\r\n", -1)
 
 	conn.Send(code + " " + msgid)
