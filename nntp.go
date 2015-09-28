@@ -135,6 +135,22 @@ func Body(conn *client.Conn, tok []string) {
 	read(conn, tok[1], "BODY")
 }
 
+func Group(conn *client.Conn, tok []string) {
+	if len(tok) != 2 {
+		conn.Send("501 Invalid syntax.")
+		return
+	}
+	if tok[1] == "nosuch.group" {
+		conn.Send("411 No such group.")
+		return
+	} else if tok[1] == "standard.group" {
+		conn.Send("211 300007627 8974530000 9274537627 standard.group")
+		return
+	}
+
+	conn.Send("501 No test for given groupname")
+}
+
 func req(conn *client.Conn) {
 	conn.Send("200 StoreD")
 	for {
@@ -163,6 +179,9 @@ func req(conn *client.Conn) {
 					conn.Send("281 Authentication accepted.")
 				}
 			}
+		} else if cmd == "GROUP" {
+			// GROUP x
+			Group(conn, tok)
 		} else if cmd == "NOOP" {
 			conn.Send("500 Unsupported.")
 		} else if cmd == "POST" {
