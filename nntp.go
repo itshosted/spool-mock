@@ -99,7 +99,7 @@ Mkv Tool Nix 8.4.0`
 }
 
 func PostArticle(conn *client.Conn) {
-	conn.Send("340 Start posting.")
+	conn.Send("335 Send article to be transferred.")
 
 	b := new(bytes.Buffer)
 	br := bufio.NewReader(conn.GetReader())
@@ -108,18 +108,18 @@ func PostArticle(conn *client.Conn) {
 	fmt.Println("PostArticle head.")
 	m, e := r.ReadMIMEHeader()
 	if e != nil {
-		conn.Send("440 Failed reading header")
+		conn.Send("437 Failed reading header")
 		return
 	}
 
 	fmt.Println("PostArticle body.")
 	if _, e := io.Copy(b, dotreader.New(br)); e != nil {
-		conn.Send("440 Failed reading body")
+		conn.Send("437 Failed reading body")
 		return
 	}
 
 	if val := m.Get("X-Accept"); val == "DENY" {
-		conn.Send("440 Deny test.")
+		conn.Send("437 Deny test.")
 		return
 	}
 
@@ -127,7 +127,7 @@ func PostArticle(conn *client.Conn) {
 		conn.Send("500 Body does not match hardcoded compare value.")
 		return
 	}
-	conn.Send("240 Posted.")
+	conn.Send("235 Transferred.")
 }
 
 func Article(conn *client.Conn, tok []string) {
@@ -312,7 +312,7 @@ func req(conn *client.Conn) {
 			Group(conn, tok)
 		} else if cmd == "NOOP" {
 			conn.Send("500 Unsupported.")
-		} else if cmd == "POST" {
+		} else if cmd == "IHAVE" {
 			PostArticle(conn)
 		} else if cmd == "XOVER" {
 			Xover(conn, tok)
