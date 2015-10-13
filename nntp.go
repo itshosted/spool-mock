@@ -11,6 +11,7 @@ import (
 	"bufio"
 	"bytes"
 	"spool-mock/dotreader"
+	"time"
 )
 
 func Quit(conn *client.Conn, tok []string) {
@@ -82,6 +83,14 @@ Mkv Tool Nix 8.4.0`
 }
 
 	raw = strings.Replace(raw, "\n", "\r\n", -1)
+	if msgid == "<yesterday@usenet.server>" {
+		raw = strings.Replace(
+			raw,
+			"Fri, 25 Sep 2015 11:21:23 +0200",
+			time.Now().Format("Mon, 2 Jan 2006 15:04:05 -0700"),
+			1,
+		)
+	}
 
 	conn.Send(code + " " + msgtop)
 
