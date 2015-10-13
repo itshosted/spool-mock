@@ -1,4 +1,4 @@
 spool-mock
 =============
-Fake a storage machine on NNTP for testing purposes.
-"Clone" of stored.
+Dummy server that 'mocks' an NNTP-server (spool) to allow easy
+testing if an NNTP-server (frontend) works as expected.
