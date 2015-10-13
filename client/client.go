@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"net"
-	"nntpd/config"
+	"spool-mock/config"
 	"strings"
 	"io"
-	"nntpd/rawio"
+	"spool-mock/dotreader"
 )
 
 const EOF = "\r\n"
@@ -55,7 +55,7 @@ func (c *Conn) LocalAddr() string {
 
 // Get DotReader
 func (c *Conn) GetReader() io.Reader {
-	return rawio.New(c.r)
+	return dotreader.New(c.r)
 }
 
 func (c *Conn) GetWriter() io.Writer {
