@@ -28,6 +28,11 @@ func read(conn *client.Conn, msgid string, msgtype string) {
 	head := true
 	body := true
 
+	if msgid == "<toggle_fail@usenet.farm>" && conn.User != "spool" {
+		conn.Send("430 Article not found.")
+		return
+	}
+
 	if msgid[0] == '<' {
 		msgtop = "0 " + msgid
 	} else {
@@ -311,6 +316,7 @@ func req(conn *client.Conn) {
 		} else if cmd == "AUTHINFO" {
 			sub := strings.ToUpper(tok[1])
 			if sub == "USER" {
+				conn.User = tok[2]
 				conn.Send("381 Need more.")
 			} else if sub == "PASS" {
 				if tok[2] == "test" {

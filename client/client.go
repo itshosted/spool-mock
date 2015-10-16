@@ -13,6 +13,7 @@ import (
 const EOF = "\r\n"
 
 type Conn struct {
+	User       string
 	LoggedIn   bool
 	Cmds       int
 
