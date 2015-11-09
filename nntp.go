@@ -222,6 +222,11 @@ func Xover(conn *client.Conn, tok []string) {
 		conn.Send(raw);
 		return
 	}
+	if tok[1] == "7824700-7824826" {
+		conn.Send("224 Overview follows.")
+		conn.Send(".")
+		return
+	}
 
 	conn.Send("501 No test")
 }
