@@ -12,6 +12,7 @@ import (
 	"bytes"
 	"spool-mock/dotreader"
 	"time"
+	"io/ioutil"
 )
 
 func Quit(conn *client.Conn, tok []string) {
@@ -54,6 +55,14 @@ func read(conn *client.Conn, msgid string, msgtype string) {
 	if msgid == "<aaa@bb.cc>" || msgid == "123" {
 		conn.Send("500 msgid means fivehundred err")
 		return
+	}
+
+	// fake some timeouts here
+	if msgid == "<180sec@slowdown.cc>" {
+		time.Sleep(time.Second * 180)
+	}
+	if msgid == "<20sec@slowdown.cc>" {
+		time.Sleep(time.Second * 20)
 	}
 
 	var raw string
@@ -334,6 +343,18 @@ func req(conn *client.Conn) {
 			conn.Send("500 Unsupported.")
 		} else if cmd == "IHAVE" {
 			PostArticle(conn)
+		} else if cmd == "POST" {
+			if e := conn.Send("340 Start posting."); e != nil {
+				conn.Send("437 Start failed.")
+			}
+			br := bufio.NewReader(conn.GetReader())
+			if _, e := io.Copy(ioutil.Discard, dotreader.New(br)); e != nil {
+				conn.Send("437 Failed reading body")
+				return
+			}
+			if e := conn.Send("240 Posted "); e != nil {
+				conn.Send("437 Failed storing.")
+			}
 		} else if cmd == "XOVER" {
 			Xover(conn, tok)
 		} else if cmd == "XHDR" {
