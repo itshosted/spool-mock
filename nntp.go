@@ -18,6 +18,10 @@ func Quit(conn *client.Conn, tok []string) {
 	conn.Send("205 Bye.")
 }
 
+func Date(conn *client.Conn, tok []string) {
+	conn.Send("111 19990623135624")
+}
+
 func Unsupported(conn *client.Conn, tok []string) {
 	fmt.Println(fmt.Sprintf("WARN: C(%s): Unsupported cmd %s", conn.RemoteAddr(), tok[0]))
 	conn.Send("500 Unsupported.")
@@ -340,6 +344,8 @@ func req(conn *client.Conn) {
 			Xhdr(conn, tok)
 		} else if cmd == "LIST" {
 			List(conn, tok)
+		} else if cmd == "DATE" {
+			Date(conn, tok)
 		} else {
 			Unsupported(conn, tok)
 			break
