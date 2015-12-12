@@ -240,6 +240,16 @@ func Xover(conn *client.Conn, tok []string) {
 		conn.Send(".")
 		return
 	}
+	if tok[1] == "7624890-7824890" {
+		// Create a BIG stream of 200.000 headers to fake >10MB streams
+		conn.Send("224 Overview follows.")
+		for i := 0; i < 200000; i++ {
+			id := 7624890+i
+			conn.Send(fmt.Sprintf("%d	A b's Z Abc - Person | hotmama	hotmama <rbsHeWOltXSPohqOb5cK1bo7e0aKcDewG5MLp3LORmP2CCPuszZUvMNSrKoQYlkuXbqCfjlwvDobYaSfBhz-pdGI6IARjweEeXSJmjIpXQKkQ-pJF1hq-pbl6x85gQPuVp0MTSjS91emBCTCsgsFHXJAUA-p3gR-pgne42u94Dy421eM=.oFSFmeMqBIP-s6I6JnNAXmhepNSDExw662pJG-pfiaubqB2ED5ZPkGafJXljSGmC2xOE8KrmkJQJU7ZLR8wp9f2TWnoCI63fJ8aQw2G-sXVnmsvlS	29 Sep 2015 09:50:42 GMT	<ck5tbXJUWjY3hAHLlvHATfU4308@spot.net>		3154	9	Xref: artnum free.pt:7824801", id))
+		}
+		conn.Send(".")
+		return
+	}
 
 	conn.Send("501 No test")
 }
