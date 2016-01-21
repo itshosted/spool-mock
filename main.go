@@ -12,6 +12,10 @@ func main() {
 	flag.StringVar(&nntp, "n", "0.0.0.0:9091", "NNTP Listen on ip:port")
 	flag.Parse()
 
+	if e := config.Init(); e != nil {
+		panic(e)
+	}
+
 	if e := nntpListen(nntp); e != nil {
 		panic(e)
 	}
