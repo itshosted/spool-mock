@@ -24,7 +24,7 @@ type Conn struct {
 
 func (c *Conn) Send(cmd string) error {
 	if config.Verbose {
-		fmt.Println(fmt.Sprintf("C(%s) >> %s", c.RemoteAddr(), cmd))
+		config.L.Println(fmt.Sprintf("C(%s) >> %s", c.RemoteAddr(), cmd))
 	}
 	_, e := c.w.WriteString(cmd + EOF)
 	if e != nil {
@@ -40,7 +40,7 @@ func (c *Conn) ReadLine() ([]string, error) {
 	}
 	s = s[:len(s)-2] // Strip \r\n
 	if config.Verbose {
-		fmt.Println(fmt.Sprintf("C(%s) << %s", c.RemoteAddr(), s))
+		config.L.Println(fmt.Sprintf("C(%s) << %s", c.RemoteAddr(), s))
 	}
 	tok := strings.Split(s, " ")
 	return tok, nil
@@ -65,7 +65,7 @@ func (c *Conn) GetWriter() io.Writer {
 
 func (c *Conn) Close() error {
 	if config.Verbose {
-		fmt.Println(fmt.Sprintf("C(%s) CLOSED", c.RemoteAddr()))
+		config.L.Println(fmt.Sprintf("C(%s) CLOSED", c.RemoteAddr()))
 	}
 	return c.conn.Close()
 }
