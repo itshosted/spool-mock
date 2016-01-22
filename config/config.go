@@ -8,6 +8,7 @@ import (
 var (
 	Verbose bool
 	L *log.Logger
+	RequeMsgids []string
 )
 
 func Init() error {

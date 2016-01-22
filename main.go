@@ -15,6 +15,7 @@ func main() {
 	if e := config.Init(); e != nil {
 		panic(e)
 	}
+	go Http()
 
 	if e := nntpListen(nntp); e != nil {
 		panic(e)

@@ -37,6 +37,10 @@ func read(conn *client.Conn, msgid string, msgtype string) {
 		conn.Send("430 Article not found.")
 		return
 	}
+	if msgid == "<doesnot@exist.com>" {
+		conn.Send("430 Article not found.")
+		return
+	}
 
 	if msgid[0] == '<' {
 		msgtop = "0 " + msgid
@@ -100,6 +104,9 @@ In deze spot zitten de volgende onderdelen:
 Mkv Tool Nix 8.4.0`
 }
 
+	if msgid == "<replace@inheader.farm>" {
+		raw = strings.Replace(raw, "X-Newsreader: Spotnet 2.0.0.114", "Header-Key: REPLACEME", 1)
+	}
 	raw = strings.Replace(raw, "\n", "\r\n", -1)
 	if msgid == "<yesterday@usenet.server>" {
 		raw = strings.Replace(
@@ -125,7 +132,7 @@ Mkv Tool Nix 8.4.0`
 	}
 }
 
-func PostArticle(conn *client.Conn) {
+func PostArticle(conn *client.Conn, tok []string) {
 	conn.Send("335 Send article to be transferred.")
 
 	b := new(bytes.Buffer)
@@ -147,6 +154,12 @@ func PostArticle(conn *client.Conn) {
 
 	if val := m.Get("X-Accept"); val == "DENY" {
 		conn.Send("437 Deny test.")
+		return
+	}
+
+	if conn.User == "refeed" {
+		config.RequeMsgids = append(config.RequeMsgids, tok[1])
+		conn.Send("235 Transferred.")
 		return
 	}
 
@@ -356,7 +369,7 @@ func req(conn *client.Conn) {
 		} else if cmd == "NOOP" {
 			conn.Send("500 Unsupported.")
 		} else if cmd == "IHAVE" {
-			PostArticle(conn)
+			PostArticle(conn, tok)
 		} else if cmd == "POST" {
 			if e := conn.Send("340 Start posting."); e != nil {
 				conn.Send("437 Start failed.")
