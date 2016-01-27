@@ -133,6 +133,10 @@ Mkv Tool Nix 8.4.0`
 }
 
 func PostArticle(conn *client.Conn, tok []string) {
+	if tok[1] == "<ihavealready@usenet.farm>" {
+		conn.Send("435 Already have article.")
+		return
+	}
 	conn.Send("335 Send article to be transferred.")
 
 	b := new(bytes.Buffer)
