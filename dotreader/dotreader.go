@@ -1,4 +1,4 @@
-// Insipired on the dotReader from textproto but way simpler
+// Inspired on the dotReader from textproto but way simpler
 // to improve performance.
 package dotreader
 
