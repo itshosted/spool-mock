@@ -160,6 +160,15 @@ func PostArticle(conn *client.Conn, tok []string) {
 		conn.Send("437 Deny test.")
 		return
 	}
+	if val := m.Get("X-Accept"); val == "BROKEN" {
+		conn.Send("500 Server is broken.")
+		return
+	}
+
+	if tok[1] == "<duplicate_refeed@usenet.farm>" {
+		conn.Send("437 Duplicate")
+		return
+	}
 
 	if conn.User == "refeed" {
 		config.RequeMsgids = append(config.RequeMsgids, tok[1])
