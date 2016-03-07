@@ -137,6 +137,10 @@ func PostArticle(conn *client.Conn, tok []string) {
 		conn.Send("435 Already have article.")
 		return
 	}
+	if tok[1] == "<failearly@usenet.farm>" {
+		conn.Send("436 Early failed.")
+		return		
+	}
 	conn.Send("335 Send article to be transferred.")
 
 	b := new(bytes.Buffer)
@@ -162,6 +166,10 @@ func PostArticle(conn *client.Conn, tok []string) {
 	}
 	if val := m.Get("X-Accept"); val == "BROKEN" {
 		conn.Send("500 Server is broken.")
+		return
+	}
+	if val := m.Get("X-Accept"); val == "FAILED" {
+		conn.Send("436 Transfer failed test.")
 		return
 	}
 
